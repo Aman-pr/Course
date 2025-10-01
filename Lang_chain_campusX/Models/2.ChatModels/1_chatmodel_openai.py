@@ -1,10 +1,11 @@
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
-
-model = ChatOpenAI(model='gpt-4', temperature=1.5, max_completion_tokens=10)
-
-result = model.invoke("Write a 5 line poem on cricket")
+api_key = os.getenv("GROQ_API_KEY")
+print("Api Key loaded")
+llm = ChatGroq(model="llama-3.3-70b-versatile")
+result = llm.invoke("hey this is a testing of of llm chat model i am learning write how are you ")
 
 print(result.content)
