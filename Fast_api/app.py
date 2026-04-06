@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI , Query , Path
 import sys #import from termianl 
 from typing import Any,Annotated # for documation validation    
 from enum import Enum # for predefing the valus or set of value
+from pydantic import BaseModel
+
 
 #enum 
 class emp_id_number(int,Enum):
@@ -13,6 +15,13 @@ class emp_id_number(int,Enum):
         emp_106=6
 
 
+#pydantic 
+class role_emp(BaseModel):
+        Name:str
+        role:str
+        des:str | None=None
+        emp_id:int 
+        Summery:str| None=None
 
 app=FastAPI()
 
@@ -40,6 +49,36 @@ async def root(emp_id:emp_id_number):
 async def limit(skip:int=1,limit:int=5):
         list_numgber = list(range(1,10))
         return list_numgber[skip: skip + limit]
+
+
+#Request
+@app.post("/Create_emp")
+async def create_emp_detils(detils:role_emp):
+        dic_emp_detils=detils.model_dump()
+        if detils.Summery is not None:
+                detils.Summery = dic_emp_detils["role"].title()+" "+dic_emp_detils["des"].title()
+        return detils.Summery
+
+
+    
+@app.put("/items/{item_id}")
+async def update_item(item_id: Annotated[int,Path(title="the item number ",gt=2,le=5)], item: emp_id_number, q: Annotated[str | None ,Query(
+       alias="query",
+       title="Question to be asked ",
+       description="Enter the question that need to be asked from api ",
+       min_length=3,
+       max_length=10,
+       deprecated=True
+       ) 
+       ] = None):
+
+    result = {"item_id": item_id, "item": item.value}
+
+    if q:
+        result.update({"q": q})
+
+    return result
+
 
 
 if __name__ == "__main__":
